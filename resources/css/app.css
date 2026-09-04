@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-cream text-ink-800 antialiased;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .eyebrow {
+        @apply font-sans text-xs uppercase tracking-widest2 text-gold-600;
+    }
+
+    .section-divider {
+        @apply flex items-center justify-center gap-3 text-gold-500;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+        content: '';
+        @apply h-px w-10 bg-gold-300;
+    }
+
+    .btn-gold {
+        @apply inline-flex items-center justify-center gap-2 bg-ink-900 px-8 py-3 text-xs uppercase tracking-widest2 text-cream transition hover:bg-gold-600;
+    }
+
+    .btn-gold-outline {
+        @apply inline-flex items-center justify-center gap-2 border border-ink-900 px-8 py-3 text-xs uppercase tracking-widest2 text-ink-900 transition hover:border-gold-500 hover:bg-ink-900 hover:text-cream;
+    }
+
+    .nav-link {
+        @apply text-xs uppercase tracking-widest2 text-ink-700 transition hover:text-gold-600;
+    }
+}
