@@ -32,7 +32,7 @@
         <div class="space-y-8">
             <div>
                 <h3 class="eyebrow text-ink-500 mb-2">Boutique</h3>
-                <p class="text-ink-700">14 Ardglass Lane<br>Belfast, BT1 2AB<br>United Kingdom</p>
+                <p class="text-ink-700">720 Market St<br>San Francisco, CA 94102</p>
             </div>
             <div>
                 <h3 class="eyebrow text-ink-500 mb-2">Hours</h3>
