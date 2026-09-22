@@ -13,4 +13,11 @@ class ContactTest extends TestCase
             ->assertSee('720 Market St', false)
             ->assertSee('San Francisco, CA 94102', false);
     }
+
+    public function test_footer_shows_boutique_address(): void
+    {
+        $response = $this->get(route('contact'))->assertOk();
+
+        $this->assertGreaterThanOrEqual(2, substr_count($response->getContent(), '720 Market St'));
+    }
 }

@@ -86,6 +86,7 @@
                 <div>
                     <h4 class="font-serif text-lg text-cream mb-4">J&amp;D Gem Store</h4>
                     <p class="text-ink-400 leading-relaxed">Fine jewelry designed and finished by hand, sourced with care from artisans we trust.</p>
+                    <p class="text-ink-400 leading-relaxed mt-4">720 Market St<br>San Francisco, CA 94102</p>
                 </div>
                 <div>
                     <h4 class="eyebrow text-ink-300 mb-4">Shop</h4>
