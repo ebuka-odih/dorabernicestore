@@ -6,7 +6,7 @@
     </section>
 
     <section class="max-w-6xl mx-auto px-6 py-16">
-        <form id="checkout-form" class="grid md:grid-cols-3 gap-16">
+        <form id="checkout-form" class="grid md:grid-cols-3 gap-16" onsubmit="return false;">
             @csrf
 
             <div class="md:col-span-2 space-y-10">
@@ -56,7 +56,10 @@
                         <div id="payment-errors" class="text-rose-600 text-sm mt-3" role="alert"></div>
                     @else
                         <div class="bg-gold-50 border border-gold-200 text-ink-600 text-sm p-6 leading-relaxed">
-                            Payment processing is still being set up for this store — Stripe test keys haven't been added yet. Once they are, card payment will appear here.
+                            Payment processing is still being set up for this store — Stripe keys haven't been added yet. Once they are, card payment will appear here.
+                            @if (auth()->user()?->is_admin)
+                                <a href="{{ route('admin.settings.edit') }}" class="text-gold-600 hover:underline font-medium">Add them in Admin → Settings.</a>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -95,26 +98,6 @@
         <script src="https://js.stripe.com/v3/"></script>
         <script>
             (function () {
-                const stripe = Stripe(@json(config('services.stripe.key')));
-                const elements = stripe.elements({
-                    clientSecret: @json($clientSecret),
-                    appearance: {
-                        theme: 'stripe',
-                        variables: {
-                            colorPrimary: '#B08D4E',
-                            colorBackground: '#ffffff',
-                            colorText: '#28221D',
-                            colorDanger: '#A8695C',
-                            fontFamily: 'Jost, ui-sans-serif, system-ui, sans-serif',
-                            borderRadius: '0px',
-                            spacingUnit: '4px',
-                        },
-                    },
-                });
-
-                const paymentElement = elements.create('payment');
-                paymentElement.mount('#payment-element');
-
                 const form = document.getElementById('checkout-form');
                 const submitBtn = document.getElementById('checkout-submit');
                 const errorBox = document.getElementById('payment-errors');
@@ -123,6 +106,58 @@
                 function setBusy(busy) {
                     submitBtn.disabled = busy;
                     submitBtn.textContent = busy ? 'Processing…' : 'Pay & Place Order';
+                }
+
+                // Stripe.js failed to load (offline, or blocked by a content
+                // blocker). Say so plainly instead of leaving a blank box and
+                // a Pay button that goes nowhere.
+                if (typeof Stripe === 'undefined') {
+                    errorBox.textContent = 'The payment form could not be loaded. Please check your connection, disable any ad blocker for this store, and refresh.';
+                    setBusy(true);
+                    submitBtn.textContent = 'Payment Unavailable';
+                    return;
+                }
+
+                let stripe, elements;
+                try {
+                    stripe = Stripe(@json(config('services.stripe.key')));
+
+                    // Some content blockers replace Stripe.js with a dummy
+                    // stub instead of blocking it outright — treat that the
+                    // same as a failed load so the failure is explained.
+                    if (!stripe || typeof stripe.elements !== 'function') {
+                        throw new Error('blocked by a content blocker');
+                    }
+
+                    elements = stripe.elements({
+                        clientSecret: @json($clientSecret),
+                        appearance: {
+                            theme: 'stripe',
+                            variables: {
+                                colorPrimary: '#B08D4E',
+                                colorBackground: '#ffffff',
+                                colorText: '#28221D',
+                                colorDanger: '#A8695C',
+                                fontFamily: 'Jost, ui-sans-serif, system-ui, sans-serif',
+                                borderRadius: '0px',
+                                spacingUnit: '4px',
+                            },
+                        },
+                    });
+
+                    const paymentElement = elements.create('payment');
+                    paymentElement.mount('#payment-element');
+
+                    // Failures that surface after mounting (e.g. the payment
+                    // session cannot be loaded) do not throw — listen for them.
+                    paymentElement.on('loaderror', function (event) {
+                        const detail = event && event.error && event.error.message ? ': ' + event.error.message : '';
+                        errorBox.textContent = 'The payment form failed to load' + detail + '. Please refresh, or contact the store if this keeps happening.';
+                    });
+                } catch (err) {
+                    const detail = err && err.message ? ': ' + err.message : '';
+                    errorBox.textContent = 'The payment form could not be started' + detail + '. Please refresh, disable any ad blocker for this store, or contact the store if this keeps happening.';
+                    return;
                 }
 
                 form.addEventListener('submit', async function (e) {

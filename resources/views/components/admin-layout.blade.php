@@ -28,6 +28,7 @@
                         ['route' => 'admin.products.index', 'label' => 'Products', 'pattern' => 'admin.products.*'],
                         ['route' => 'admin.categories.index', 'label' => 'Categories', 'pattern' => 'admin.categories.*'],
                         ['route' => 'admin.orders.index', 'label' => 'Orders', 'pattern' => 'admin.orders.*'],
+                        ['route' => 'admin.settings.edit', 'label' => 'Settings', 'pattern' => 'admin.settings.*'],
                     ];
                 @endphp
                 @foreach ($links as $link)

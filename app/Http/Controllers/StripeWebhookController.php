@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\StripeOrders;
+use App\Support\StripeSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Exception\SignatureVerificationException;
@@ -17,7 +18,7 @@ class StripeWebhookController extends Controller
      */
     public function handle(Request $request)
     {
-        $secret = config('services.stripe.webhook_secret');
+        $secret = StripeSettings::webhookSecret();
 
         if (! $secret) {
             Log::warning('Stripe webhook received but STRIPE_WEBHOOK_SECRET is not configured — refusing to trust an unsigned event.');

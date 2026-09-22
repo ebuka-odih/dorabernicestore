@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -53,6 +54,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('categories', AdminCategoryController::class)->except('show');
     Route::resource('products', AdminProductController::class)->except('show');
     Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
+    Route::get('settings', [AdminSettingController::class, 'edit'])->name('settings.edit');
+    Route::put('settings', [AdminSettingController::class, 'update'])->name('settings.update');
 });
 
 require __DIR__.'/auth.php';

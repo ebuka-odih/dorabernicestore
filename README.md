@@ -18,7 +18,7 @@ php artisan key:generate
 php artisan migrate --seed
 ```
 
-Add Stripe test keys to `.env` (`STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`) to enable checkout — see the comments above those lines in `.env.example`. For local webhook testing, run `stripe listen --forward-to <your-app-url>/stripe/webhook`.
+Stripe keys can be set either in `.env` (`STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET` — see the comments above those lines in `.env.example`) or, once logged in as admin, under **Admin → Settings → Stripe Payments**. Keys saved in the admin panel take effect immediately and override the `.env` values. For local webhook testing, run `stripe listen --forward-to <your-app-url>/stripe/webhook`.
 
 ## Seeded accounts
 

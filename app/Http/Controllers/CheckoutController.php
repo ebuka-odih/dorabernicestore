@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Support\Cart;
 use App\Support\StripeOrders;
+use App\Support\StripeSettings;
 use Illuminate\Http\Request;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -23,15 +24,19 @@ class CheckoutController extends Controller
         $shippingCost = $subtotal >= 250 ? 0 : 15;
         $total = $subtotal + $shippingCost;
 
-        $stripeConfigured = filled(config('services.stripe.key')) && filled(config('services.stripe.secret'));
+        $stripeConfigured = StripeSettings::isConfigured();
         $clientSecret = null;
 
         if ($stripeConfigured) {
             try {
                 $clientSecret = $this->resolvePaymentIntent($request, $total)->client_secret;
             } catch (\Exception $e) {
-                $stripeConfigured = false;
+                $clientSecret = null;
             }
+
+            // Never render a payment box with no usable session behind it —
+            // the embedded form cannot start without a client secret.
+            $stripeConfigured = filled($clientSecret);
         }
 
         return view('checkout', compact('items', 'subtotal', 'shippingCost', 'total', 'stripeConfigured', 'clientSecret'));
@@ -39,13 +44,17 @@ class CheckoutController extends Controller
 
     /**
      * Create (or reuse) the PaymentIntent backing this checkout session,
-     * keeping its amount in sync with the current cart total.
+     * keeping its amount in sync with the current cart total. The cart's
+     * products travel on the intent (description + metadata) from the
+     * start, so they show in the Stripe Dashboard even if the customer
+     * never submits the details form.
      */
     protected function resolvePaymentIntent(Request $request, float $total): PaymentIntent
     {
         $amount = (int) round($total * 100);
         $stripe = $this->stripe();
         $intentId = $request->session()->get('checkout_intent_id');
+        $purchase = $this->purchaseParams();
 
         if ($intentId) {
             try {
@@ -53,8 +62,8 @@ class CheckoutController extends Controller
 
                 if (in_array($intent->status, ['requires_payment_method', 'requires_confirmation', 'requires_action'])) {
                     return $intent->amount === $amount
-                        ? $intent
-                        : $stripe->paymentIntents->update($intentId, ['amount' => $amount]);
+                        ? $stripe->paymentIntents->update($intentId, $purchase)
+                        : $stripe->paymentIntents->update($intentId, ['amount' => $amount, ...$purchase]);
                 }
             } catch (\Exception $e) {
                 // Intent is gone or invalid — fall through and start a fresh one.
@@ -65,11 +74,28 @@ class CheckoutController extends Controller
             'amount' => $amount,
             'currency' => 'usd',
             'automatic_payment_methods' => ['enabled' => true],
+            ...$purchase,
         ]);
 
         $request->session()->put('checkout_intent_id', $intent->id);
 
         return $intent;
+    }
+
+    /**
+     * The product purchase as Stripe PaymentIntent params: a readable
+     * description plus metadata carrying totals and the full cart snapshot.
+     */
+    protected function purchaseParams(): array
+    {
+        $subtotal = Cart::subtotal();
+        $shippingCost = $subtotal >= 250 ? 0 : 15;
+        $snapshot = StripeOrders::cartSnapshot(Cart::items());
+
+        return [
+            'description' => StripeOrders::paymentDescription($snapshot),
+            'metadata' => StripeOrders::purchaseMetadata($snapshot, $subtotal, $shippingCost),
+        ];
     }
 
     /**
@@ -96,25 +122,18 @@ class CheckoutController extends Controller
 
         $request->session()->put('checkout_details', $data);
 
-        $subtotal = Cart::subtotal();
-        $shippingCost = $subtotal >= 250 ? 0 : 15;
+        $purchase = $this->purchaseParams();
 
-        $snapshot = Cart::items()->map(fn ($item) => [
-            'id' => $item->product->id,
-            'name' => $item->product->name,
-            'q' => $item->quantity,
-            'p' => (float) $item->product->currentPrice(),
-        ])->values()->all();
-
+        // A metadata update replaces the whole map, so resend the purchase
+        // snapshot alongside the customer details.
         $metadata = array_filter([
             ...$data,
             'user_id' => (string) auth()->id(),
-            'order_subtotal' => (string) $subtotal,
-            'order_shipping_cost' => (string) $shippingCost,
-            'cart_snapshot' => substr(json_encode($snapshot), 0, 500),
+            ...$purchase['metadata'],
         ], fn ($value) => $value !== null && $value !== '');
 
         $this->stripe()->paymentIntents->update($intentId, [
+            'description' => $purchase['description'],
             'receipt_email' => $data['customer_email'],
             'metadata' => $metadata,
         ]);
@@ -173,6 +192,6 @@ class CheckoutController extends Controller
 
     protected function stripe(): StripeClient
     {
-        return new StripeClient(config('services.stripe.secret'));
+        return new StripeClient((string) StripeSettings::secretKey());
     }
 }

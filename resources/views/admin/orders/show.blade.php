@@ -51,6 +51,9 @@
                 @endif
                 @if ($order->stripe_payment_intent_id)
                     <p class="text-xs text-ink-400 mt-2 font-mono">{{ $order->stripe_payment_intent_id }}</p>
+                    @if ($stripeUrl = \App\Support\StripeSettings::paymentUrl($order->stripe_payment_intent_id))
+                        <a href="{{ $stripeUrl }}" target="_blank" rel="noopener" class="text-sm text-gold-600 hover:underline">View payment in Stripe &nearr;</a>
+                    @endif
                 @endif
             </div>
 
