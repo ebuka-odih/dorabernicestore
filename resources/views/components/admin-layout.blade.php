@@ -29,6 +29,7 @@
                         ['route' => 'admin.categories.index', 'label' => 'Categories', 'pattern' => 'admin.categories.*'],
                         ['route' => 'admin.orders.index', 'label' => 'Orders', 'pattern' => 'admin.orders.*'],
                         ['route' => 'admin.settings.edit', 'label' => 'Settings', 'pattern' => 'admin.settings.*'],
+                        ['route' => 'admin.password.edit', 'label' => 'Password', 'pattern' => 'admin.password.*'],
                     ];
                 @endphp
                 @foreach ($links as $link)
