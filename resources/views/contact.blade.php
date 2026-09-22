@@ -40,7 +40,7 @@
             </div>
             <div>
                 <h3 class="eyebrow text-ink-500 mb-2">Email</h3>
-                <p class="text-ink-700">hello@dorabernicestore.com</p>
+                <p class="text-ink-700">hello@jdgemworld.com</p>
             </div>
         </div>
     </section>

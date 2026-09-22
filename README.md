@@ -1,4 +1,4 @@
-# Dora Bernice
+# J&D Gem Store
 
 Fine jewelry e-commerce — a Laravel storefront and admin panel, with Stripe handling checkout payments.
 
@@ -22,7 +22,7 @@ Stripe keys can be set either in `.env` (`STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_
 
 ## Seeded accounts
 
-- Admin: `admin@dorabernicestore.com` / `password`
+- Admin: `admin@jdgemworld.com` / `password`
 - Customer: `customer@example.com` / `password`
 
 ## Structure

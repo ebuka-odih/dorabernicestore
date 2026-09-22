@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ isset($title) ? $title.' — Dora Bernice' : 'Dora Bernice — Fine Jewelry' }}</title>
+    <title>{{ isset($title) ? $title.' — J&D Gem Store' : 'J&D Gem Store — Fine Jewelry' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-cream text-ink-800 font-sans">
@@ -84,7 +84,7 @@
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-10 border-t border-ink-700 pt-12 text-sm">
                 <div>
-                    <h4 class="font-serif text-lg text-cream mb-4">Dora Bernice</h4>
+                    <h4 class="font-serif text-lg text-cream mb-4">J&amp;D Gem Store</h4>
                     <p class="text-ink-400 leading-relaxed">Fine jewelry designed and finished by hand, sourced with care from artisans we trust.</p>
                 </div>
                 <div>
@@ -118,7 +118,7 @@
             </div>
 
             <div class="border-t border-ink-700 mt-12 pt-8 text-center text-xs text-ink-500">
-                &copy; {{ now()->year }} Dora Bernice. All rights reserved.
+                &copy; {{ now()->year }} J&amp;D Gem Store. All rights reserved.
             </div>
         </div>
     </footer>

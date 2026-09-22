@@ -27,7 +27,7 @@ class StripeOrders
         try {
             $order = Order::create([
                 'user_id' => $meta['user_id'] ?? null,
-                'order_number' => 'DB-'.strtoupper(Str::random(8)),
+                'order_number' => 'JD-'.strtoupper(Str::random(8)),
                 'status' => 'processing',
                 'payment_status' => 'paid',
                 'stripe_payment_intent_id' => $intent->id,

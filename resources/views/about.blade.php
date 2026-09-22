@@ -8,7 +8,7 @@
     <section class="max-w-4xl mx-auto px-6 py-24 text-center">
         <x-jewel-icon icon="pendant" class="w-16 h-16 mx-auto text-gold-500" />
         <p class="font-serif text-2xl md:text-3xl text-ink-900 leading-relaxed mt-8">
-            Dora Bernice began at a small workbench with a simple belief — that fine jewelry should be honest in its making and meant to last a lifetime.
+            J&amp;D Gem Store began at a small workbench with a simple belief — that fine jewelry should be honest in its making and meant to last a lifetime.
         </p>
         <p class="mt-8 text-ink-600 leading-relaxed max-w-2xl mx-auto">
             Every ring, necklace, and pair of earrings we sell is designed in-house and finished by hand, using ethically sourced stones and recycled precious metals wherever possible. We work with a small circle of artisans across the world who share our obsession with detail — from the first sketch to the final polish.
