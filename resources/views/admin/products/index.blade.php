@@ -23,7 +23,13 @@
             <tbody class="divide-y divide-ink-100">
                 @forelse ($products as $product)
                     <tr class="hover:bg-ink-50">
-                        <td class="px-6 py-4"><x-jewel-icon :icon="$product->icon" class="w-6 h-6 text-gold-600" /></td>
+                        <td class="px-6 py-4">
+                            @if ($product->images->isNotEmpty())
+                                <img src="{{ $product->images->first()->url }}" alt="{{ $product->name }}" class="w-10 h-10 object-cover border border-ink-100" />
+                            @else
+                                <x-jewel-icon :icon="$product->icon" class="w-6 h-6 text-gold-600" />
+                            @endif
+                        </td>
                         <td class="px-6 py-4 text-ink-800">{{ $product->name }}</td>
                         <td class="px-6 py-4 text-ink-500">{{ $product->category->name }}</td>
                         <td class="px-6 py-4 text-ink-700">

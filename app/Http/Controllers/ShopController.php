@@ -12,7 +12,7 @@ class ShopController extends Controller
     {
         $categories = Category::query()->orderBy('sort_order')->get();
 
-        $query = Product::query()->with('category')->where('is_active', true);
+        $query = Product::query()->with(['category', 'images'])->where('is_active', true);
 
         if ($request->filled('category')) {
             $query->whereHas('category', fn ($q) => $q->where('slug', $request->string('category')));

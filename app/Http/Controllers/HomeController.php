@@ -12,7 +12,7 @@ class HomeController extends Controller
         $categories = Category::query()->orderBy('sort_order')->get();
 
         $featured = Product::query()
-            ->with('category')
+            ->with(['category', 'images'])
             ->where('is_active', true)
             ->where('is_featured', true)
             ->latest()
@@ -20,7 +20,7 @@ class HomeController extends Controller
             ->get();
 
         $newArrivals = Product::query()
-            ->with('category')
+            ->with(['category', 'images'])
             ->where('is_active', true)
             ->latest()
             ->take(3)

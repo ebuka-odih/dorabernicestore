@@ -2,7 +2,7 @@
 
 <x-admin-layout :title="$product->exists ? 'Edit Product' : 'Add Product'">
 
-    <form action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}" method="POST" class="max-w-3xl bg-white border border-ink-100 p-8 space-y-6">
+    <form action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="max-w-3xl bg-white border border-ink-100 p-8 space-y-6">
         @csrf
         @if ($product->exists) @method('PUT') @endif
 
@@ -52,7 +52,99 @@
         </div>
 
         <div>
-            <x-input-label value="Icon" />
+            <x-input-label value="Product Images (up to 4)" />
+            <p class="text-xs text-ink-500 mt-1">Upload square-friendly photos. Each image is center-cropped to a square on save so it displays consistently on product pages.</p>
+
+            @if ($product->exists && $product->images->isNotEmpty())
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3" id="existing-images">
+                    @foreach ($product->images as $image)
+                        <div class="border border-ink-200 p-2" data-image-id="{{ $image->id }}">
+                            <img src="{{ $image->url }}" alt="Product image {{ $loop->iteration }}" class="w-full aspect-square object-cover bg-ink-50" />
+                            <label class="mt-2 flex items-center gap-2 text-xs text-ink-600">
+                                <input type="radio" name="primary_image_id" value="{{ $image->id }}" @checked($loop->first) class="border-ink-300 text-gold-600 focus:ring-gold-400">
+                                Main image
+                            </label>
+                            <label class="mt-1 flex items-center gap-2 text-xs text-rose-600">
+                                <input type="checkbox" name="remove_images[]" value="{{ $image->id }}" class="border-ink-300 text-rose-600 focus:ring-rose-400 remove-image">
+                                Remove
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <input
+                id="images"
+                type="file"
+                name="images[]"
+                multiple
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                data-max-total="4"
+                data-existing="{{ $product->exists ? $product->images->count() : 0 }}"
+                class="mt-3 block w-full text-sm text-ink-600 file:mr-4 file:py-2 file:px-4 file:border file:border-ink-200 file:text-xs file:uppercase file:tracking-widest2 file:bg-white file:text-ink-700 hover:file:border-gold-500"
+            />
+            <p class="text-xs text-ink-500 mt-1" id="images-hint">You can add up to {{ 4 - ($product->exists ? $product->images->count() : 0) }} more image(s).</p>
+            <div id="image-previews" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3"></div>
+            <x-input-error :messages="$errors->get('images')" class="mt-2" />
+            <x-input-error :messages="$errors->get('images.*')" class="mt-2" />
+        </div>
+
+        <script>
+            (function () {
+                var input = document.getElementById('images');
+                var previews = document.getElementById('image-previews');
+                var hint = document.getElementById('images-hint');
+                if (!input) return;
+
+                var maxTotal = parseInt(input.dataset.maxTotal, 10) || 4;
+
+                function removedCount() {
+                    return document.querySelectorAll('.remove-image:checked').length;
+                }
+
+                function slotsLeft() {
+                    var existing = (parseInt(input.dataset.existing, 10) || 0) - removedCount();
+                    return Math.max(0, maxTotal - existing);
+                }
+
+                function refreshHint() {
+                    if (hint) hint.textContent = 'You can add up to ' + slotsLeft() + ' more image(s).';
+                }
+
+                document.querySelectorAll('.remove-image').forEach(function (box) {
+                    box.addEventListener('change', refreshHint);
+                });
+
+                input.addEventListener('change', function () {
+                    previews.innerHTML = '';
+                    var files = Array.prototype.slice.call(input.files || []);
+
+                    if (files.length > slotsLeft()) {
+                        alert('A product can have at most ' + maxTotal + ' images. You can add ' + slotsLeft() + ' more.');
+                        input.value = '';
+                        return;
+                    }
+
+                    files.forEach(function (file, i) {
+                        var url = URL.createObjectURL(file);
+                        var wrap = document.createElement('div');
+                        wrap.className = 'border border-ink-200 p-2';
+                        wrap.innerHTML =
+                            '<div class="w-full aspect-square overflow-hidden bg-ink-50">' +
+                            '<img src="' + url + '" alt="New upload ' + (i + 1) + '" class="w-full h-full object-cover" />' +
+                            '</div>' +
+                            '<p class="mt-1 text-xs text-ink-500 truncate">' + file.name + '</p>';
+                        previews.appendChild(wrap);
+                    });
+                    refreshHint();
+                });
+
+                refreshHint();
+            })();
+        </script>
+
+        <div>
+            <x-input-label value="Icon (fallback when no images)" />
             <div class="grid grid-cols-4 sm:grid-cols-8 gap-3 mt-2">
                 @foreach ($icons as $icon)
                     <label class="flex flex-col items-center gap-2 border border-ink-200 py-4 cursor-pointer has-[:checked]:border-gold-500 has-[:checked]:bg-gold-50">

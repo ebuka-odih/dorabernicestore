@@ -13,6 +13,7 @@ class ProductController extends Controller
         $product->load('category', 'images');
 
         $related = Product::query()
+            ->with(['category', 'images'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->where('is_active', true)

@@ -2,7 +2,11 @@
 
 <div class="group">
     <a href="{{ route('product.show', $product) }}" class="block relative bg-white border border-ink-100 aspect-square flex items-center justify-center overflow-hidden">
-        <x-jewel-icon :icon="$product->icon" class="w-24 h-24 text-ink-800 transition duration-500 group-hover:scale-110 group-hover:text-gold-600" />
+        @if ($product->images->isNotEmpty())
+            <img src="{{ $product->images->first()->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+        @else
+            <x-jewel-icon :icon="$product->icon" class="w-24 h-24 text-ink-800 transition duration-500 group-hover:scale-110 group-hover:text-gold-600" />
+        @endif
 
         @if ($product->onSale())
             <span class="absolute top-3 right-3 w-12 h-12 rounded-full bg-gold-600 text-cream text-[11px] uppercase tracking-wide flex items-center justify-center">Sale</span>

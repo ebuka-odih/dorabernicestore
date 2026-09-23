@@ -43,6 +43,13 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
+    public function primaryImage(): ?ProductImage
+    {
+        return $this->relationLoaded('images')
+            ? $this->images->first()
+            : $this->images()->first();
+    }
+
     public function onSale(): bool
     {
         return ! is_null($this->sale_price) && (float) $this->sale_price < (float) $this->price;
