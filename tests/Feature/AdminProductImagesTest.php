@@ -163,6 +163,38 @@ class AdminProductImagesTest extends TestCase
             ->assertSee($product->images->first()->url, false);
     }
 
+    public function test_image_upload_field_is_not_hidden_at_any_viewport(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $product = $this->productWithImages(1);
+
+        foreach (['create' => null, 'edit' => $product] as $page => $model) {
+            $url = $page === 'create'
+                ? route('admin.products.create')
+                : route('admin.products.edit', $model);
+
+            $html = $this->actingAs($admin)->get($url)->assertOk()->getContent();
+
+            $dom = new \DOMDocument;
+            @$dom->loadHTML($html);
+            $xpath = new \DOMXPath($dom);
+
+            $inputs = $xpath->query('//*[@id="images"]');
+            $this->assertSame(1, $inputs->length, "Image upload field missing on {$page} page.");
+            $this->assertSame('file', $inputs->item(0)->getAttribute('type'));
+
+            // Walk up to the form: no ancestor may carry the `hidden`
+            // utility (display:none at every viewport, including mobile).
+            $node = $inputs->item(0);
+            while ($node instanceof \DOMElement && $node->tagName !== 'form') {
+                $classes = preg_split('/\s+/', $node->getAttribute('class') ?: '');
+                $this->assertNotContains('hidden', $classes, "Image field hidden inside <{$node->tagName}> on {$page} page.");
+                $this->assertNotContains('sr-only', $classes, "Image field screen-reader-only on {$page} page.");
+                $node = $node->parentNode;
+            }
+        }
+    }
+
     public function test_deleting_product_removes_its_image_files(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);

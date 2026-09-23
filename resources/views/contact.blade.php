@@ -36,11 +36,11 @@
             </div>
             <div>
                 <h3 class="eyebrow text-ink-500 mb-2">Hours</h3>
-                <p class="text-ink-700">Monday – Saturday, 10am – 6pm</p>
+                <p class="text-ink-700">Monday – Saturday, 10am – 6pm<br>By Appointment Only</p>
             </div>
             <div>
                 <h3 class="eyebrow text-ink-500 mb-2">Email</h3>
-                <p class="text-ink-700">hello@jdgemworld.com</p>
+                <p class="text-ink-700">support@jdgemworld.com</p>
             </div>
         </div>
     </section>
